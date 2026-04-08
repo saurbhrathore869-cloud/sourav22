@@ -1,0 +1,43 @@
+import yfinance as yf
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from  sklearn.linear_model import LinearRegression
+
+ 
+# Download data
+data = yf.download("RELIANCE.NS" start="2022-02-08", end="2025-09-09")
+
+# Keep only Close column
+data = data[['Close']]
+
+# Create prediction column (30 days ahead)
+data['Prediction'] = data['Close'].shift(-30)
+
+# Features (X) and Target (y)
+X = data[['Close']][:-30]
+y = data['Prediction'][:-30]
+
+# Train-test split
+x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+ 
+# Model
+model = LinearRegression()
+model.fit(x_train, y_train)
+
+# Future prediction (last 30 days)
+x_future = data[['Close']].tail(30)
+prediction = model.predict(x_future)
+
+print(prediction)
+
+
+
+# Plot
+plt.figure(figsize=(10,5))
+plt.plot(data['Close'], label="Close Price")
+plt.xlabel("Days")
+plt.ylabel("Stock Price")
+plt.title("RELIANCE.NS Stock Price")
+plt.legend()
+plt.show()
